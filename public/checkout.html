@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finalizar pedido - Doce Encanto</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🍰 Doce Encanto</h1>
+    <div class="tag">Finalizar pedido</div>
+  </div>
+  <button id="cart-btn" onclick="window.location.href='/'">← Voltar à loja</button>
+</header>
+
+<main>
+  <div class="demo-banner">
+    ⚠️ Checkout de demonstração — nenhum pagamento real será processado.
+  </div>
+
+  <div class="checkout-box">
+    <h2>Seus dados</h2>
+    <label>Nome completo</label>
+    <input type="text" id="customerName" placeholder="Seu nome">
+
+    <label>E-mail</label>
+    <input type="email" id="customerEmail" placeholder="seuemail@exemplo.com">
+
+    <label>Endereço de entrega</label>
+    <textarea id="customerAddress" rows="2" placeholder="Rua, número, bairro, cidade"></textarea>
+
+    <h2 style="margin-top:24px;">Forma de pagamento</h2>
+    <div class="payment-options">
+      <div class="payment-option" data-method="pix">💠 Pix</div>
+      <div class="payment-option" data-method="boleto">🧾 Boleto</div>
+      <div class="payment-option" data-method="cartao">💳 Cartão</div>
+    </div>
+
+    <div id="card-selection" class="hidden">
+      <label style="margin-top:16px;">Escolha um cartão fictício de teste</label>
+      <div class="fake-cards" id="fake-cards">
+        <div class="fake-card" data-card="Visa fictício •••• 1234">
+          <span>💳 Visa fictício</span><span>•••• 1234</span>
+        </div>
+        <div class="fake-card" data-card="Mastercard fictício •••• 5678">
+          <span>💳 Mastercard fictício</span><span>•••• 5678</span>
+        </div>
+        <div class="fake-card" data-card="Elo fictício •••• 9012">
+          <span>💳 Elo fictício</span><span>•••• 9012</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cart-total" style="margin-top:24px;">
+      <span>Total do pedido</span>
+      <span id="order-total">R$ 0,00</span>
+    </div>
+
+    <button class="btn-primary" id="confirm-order">Confirmar pedido (simulado)</button>
+    <div id="checkout-error" style="color:#c94a4a; font-size:0.85rem; margin-top:10px;"></div>
+  </div>
+</main>
+
+<footer>Doce Encanto © 2026 — projeto de demonstração</footer>
+
+<div id="cart-overlay"></div>
+<div id="cart-drawer"></div>
+
+<script src="/js/cart.js"></script>
+<script src="/js/checkout.js"></script>
+</body>
+</html>

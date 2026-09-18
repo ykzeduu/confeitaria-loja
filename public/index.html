@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doce Encanto - Confeitaria</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🍰 Doce Encanto</h1>
+    <div class="tag">Bolos, doces e tortas artesanais</div>
+  </div>
+  <button id="cart-btn">🛒 Carrinho (<span id="cart-count">0</span>)</button>
+</header>
+
+<main>
+  <div class="demo-banner">
+    ⚠️ Site de demonstração — pagamentos são <strong>simulados</strong>, nenhuma cobrança real é feita.
+  </div>
+
+  <div id="catalog"></div>
+</main>
+
+<footer>Doce Encanto © 2026 — projeto de demonstração</footer>
+
+<!-- Carrinho -->
+<div id="cart-overlay"></div>
+<div id="cart-drawer">
+  <div class="cart-header">
+    <strong>Seu carrinho</strong>
+    <button class="close-btn" id="close-cart">&times;</button>
+  </div>
+  <div class="cart-items" id="cart-items"></div>
+  <div class="cart-footer">
+    <div class="cart-total">
+      <span>Total</span>
+      <span id="cart-total">R$ 0,00</span>
+    </div>
+    <button class="btn-primary" id="go-checkout">Finalizar pedido</button>
+    <button class="btn-secondary" id="continue-shopping">Continuar comprando</button>
+  </div>
+</div>
+
+<script src="/js/cart.js"></script>
+<script src="/js/catalog.js"></script>
+</body>
+</html>
