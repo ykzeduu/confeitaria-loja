@@ -1,25 +1,50 @@
 const express = require('express');
+const crypto = require('crypto');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const pool = require('../db/pool');
 const { requireAdmin } = require('../middleware/auth');
 
-// ---------- Bloqueio de tentativas de login (proteção por IP) ----------
+// ---------- Bloqueio de tentativas de login ----------
 // Guardado em memória do processo: 3 tentativas erradas -> bloqueia por 60s,
-// mesmo recarregando a página (o controle é do servidor, não do navegador).
+// mesmo recarregando a página. A identificação usa um cookie dedicado
+// (persiste em qualquer F5/reload) combinado com o IP como reforço — não
+// depende de o IP se manter idêntico atrás do proxy do provedor de hospedagem.
 const MAX_ATTEMPTS = 3;
 const LOCKOUT_MS = 60 * 1000;
-const loginAttempts = new Map(); // ip -> { count, lockedUntil }
+const loginAttempts = new Map(); // key -> { count, lockedUntil }
+const LID_COOKIE = 'admin_lid';
 
-function getAttemptState(ip) {
-  return loginAttempts.get(ip) || { count: 0, lockedUntil: 0 };
+function getAttemptState(key) {
+  return loginAttempts.get(key) || { count: 0, lockedUntil: 0 };
+}
+
+function readCookie(req, name) {
+  const header = req.headers.cookie;
+  if (!header) return null;
+  const match = header.split(';').map((c) => c.trim()).find((c) => c.startsWith(`${name}=`));
+  return match ? decodeURIComponent(match.split('=')[1]) : null;
 }
 
 // POST /api/admin/login
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
-  const ip = req.ip;
-  const state = getAttemptState(ip);
+
+  // Garante um identificador estável por navegador, independente do IP.
+  let lid = readCookie(req, LID_COOKIE);
+  if (!lid) {
+    lid = crypto.randomUUID();
+    res.cookie(LID_COOKIE, lid, {
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+    });
+  }
+  // Chave baseada só no cookie: garante que o bloqueio sobreviva a qualquer
+  // F5/reload mesmo que o IP relatado pelo proxy de hospedagem varie entre requisições.
+  const key = lid;
+  const state = getAttemptState(key);
 
   if (state.lockedUntil > Date.now()) {
     const secondsLeft = Math.ceil((state.lockedUntil - Date.now()) / 1000);
@@ -40,19 +65,19 @@ router.post('/login', async (req, res) => {
       if (state.count >= MAX_ATTEMPTS) {
         state.lockedUntil = Date.now() + LOCKOUT_MS;
         state.count = 0;
-        loginAttempts.set(ip, state);
+        loginAttempts.set(key, state);
         return res.status(429).json({
           error: `Muitas tentativas incorretas. Aguarde 60s antes de tentar novamente.`,
           lockedSeconds: 60,
         });
       }
-      loginAttempts.set(ip, state);
+      loginAttempts.set(key, state);
       return res.status(401).json({
         error: `Usuário ou senha inválidos. Tentativa ${state.count} de ${MAX_ATTEMPTS}.`,
       });
     }
 
-    loginAttempts.delete(ip);
+    loginAttempts.delete(key);
     req.session.adminId = rows[0].id;
     res.json({ id: rows[0].id, username: rows[0].username });
   } catch (err) {
