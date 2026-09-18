@@ -4,15 +4,55 @@ const bcrypt = require('bcryptjs');
 const pool = require('../db/pool');
 const { requireAdmin } = require('../middleware/auth');
 
+// ---------- Bloqueio de tentativas de login (proteção por IP) ----------
+// Guardado em memória do processo: 3 tentativas erradas -> bloqueia por 60s,
+// mesmo recarregando a página (o controle é do servidor, não do navegador).
+const MAX_ATTEMPTS = 3;
+const LOCKOUT_MS = 60 * 1000;
+const loginAttempts = new Map(); // ip -> { count, lockedUntil }
+
+function getAttemptState(ip) {
+  return loginAttempts.get(ip) || { count: 0, lockedUntil: 0 };
+}
+
 // POST /api/admin/login
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
+  const ip = req.ip;
+  const state = getAttemptState(ip);
+
+  if (state.lockedUntil > Date.now()) {
+    const secondsLeft = Math.ceil((state.lockedUntil - Date.now()) / 1000);
+    return res.status(429).json({
+      error: `Muitas tentativas incorretas. Aguarde ${secondsLeft}s antes de tentar novamente.`,
+      lockedSeconds: secondsLeft,
+    });
+  }
+
   if (!username || !password) return res.status(400).json({ error: 'Informe usuário e senha.' });
+
   try {
     const { rows } = await pool.query('SELECT * FROM admins WHERE username = $1', [username]);
-    if (rows.length === 0) return res.status(401).json({ error: 'Usuário ou senha inválidos.' });
-    const match = await bcrypt.compare(password, rows[0].password_hash);
-    if (!match) return res.status(401).json({ error: 'Usuário ou senha inválidos.' });
+    const match = rows.length > 0 && await bcrypt.compare(password, rows[0].password_hash);
+
+    if (!match) {
+      state.count += 1;
+      if (state.count >= MAX_ATTEMPTS) {
+        state.lockedUntil = Date.now() + LOCKOUT_MS;
+        state.count = 0;
+        loginAttempts.set(ip, state);
+        return res.status(429).json({
+          error: `Muitas tentativas incorretas. Aguarde 60s antes de tentar novamente.`,
+          lockedSeconds: 60,
+        });
+      }
+      loginAttempts.set(ip, state);
+      return res.status(401).json({
+        error: `Usuário ou senha inválidos. Tentativa ${state.count} de ${MAX_ATTEMPTS}.`,
+      });
+    }
+
+    loginAttempts.delete(ip);
     req.session.adminId = rows[0].id;
     res.json({ id: rows[0].id, username: rows[0].username });
   } catch (err) {

@@ -15,7 +15,11 @@ async function api(path, options = {}) {
     credentials: 'same-origin',
   });
   const data = await res.json().catch(() => null);
-  if (!res.ok) throw new Error((data && data.error) || 'Erro na requisição.');
+  if (!res.ok) {
+    const err = new Error((data && data.error) || 'Erro na requisição.');
+    err.lockedSeconds = data && data.lockedSeconds;
+    throw err;
+  }
   return data;
 }
 
@@ -41,6 +45,29 @@ async function checkAdminSession() {
   }
 }
 
+let lockoutTimer;
+function startLockoutCountdown(seconds) {
+  const submitBtn = document.querySelector('#admin-login-form button[type="submit"]');
+  const errorEl = document.getElementById('admin-login-error');
+  let remaining = seconds;
+  submitBtn.disabled = true;
+  clearInterval(lockoutTimer);
+
+  function tick() {
+    if (remaining <= 0) {
+      clearInterval(lockoutTimer);
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Entrar';
+      errorEl.textContent = '';
+      return;
+    }
+    submitBtn.textContent = `Aguarde ${remaining}s...`;
+    remaining -= 1;
+  }
+  tick();
+  lockoutTimer = setInterval(tick, 1000);
+}
+
 document.getElementById('admin-login-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const errorEl = document.getElementById('admin-login-error');
@@ -56,6 +83,7 @@ document.getElementById('admin-login-form').addEventListener('submit', async (e)
     checkAdminSession();
   } catch (err) {
     errorEl.textContent = err.message;
+    if (err.lockedSeconds) startLockoutCountdown(err.lockedSeconds);
   }
 });
 
