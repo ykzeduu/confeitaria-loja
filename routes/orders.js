@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db/pool');
+const { requireCustomer, requireAdmin } = require('../middleware/auth');
 
 const VALID_METHODS = ['pix', 'boleto', 'cartao'];
 
@@ -10,13 +11,10 @@ function randomDigits(n) {
   return s;
 }
 
-// POST /api/orders - finaliza um pedido fictício
-router.post('/', async (req, res) => {
-  const { customerName, customerEmail, customerAddress, paymentMethod, paymentDetail, items } = req.body;
+// POST /api/orders - finaliza um pedido (cliente logado)
+router.post('/', requireCustomer, async (req, res) => {
+  const { paymentMethod, paymentDetail, items, couponCode, deliveryAddress } = req.body;
 
-  if (!customerName || !customerEmail || !customerAddress) {
-    return res.status(400).json({ error: 'Preencha nome, e-mail e endereço.' });
-  }
   if (!VALID_METHODS.includes(paymentMethod)) {
     return res.status(400).json({ error: 'Forma de pagamento inválida.' });
   }
@@ -28,21 +26,32 @@ router.post('/', async (req, res) => {
   try {
     await client.query('BEGIN');
 
-    // Recalcula preços a partir do banco (nunca confia no preço vindo do cliente)
+    const { rows: customerRows } = await client.query('SELECT * FROM customers WHERE id = $1', [req.session.customerId]);
+    const customer = customerRows[0];
+    const address = deliveryAddress || customer.address;
+    if (!address) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Informe um endereço de entrega.' });
+    }
+
     const productIds = items.map((i) => i.productId);
     const { rows: products } = await client.query(
-      'SELECT id, name, price_cents FROM products WHERE id = ANY($1::int[])',
+      'SELECT id, name, price_cents, stock_quantity FROM products WHERE id = ANY($1::int[]) FOR UPDATE',
       [productIds]
     );
     const productMap = new Map(products.map((p) => [p.id, p]));
 
-    let totalCents = 0;
+    let subtotalCents = 0;
     const resolvedItems = [];
     for (const item of items) {
       const product = productMap.get(item.productId);
       if (!product) continue;
       const quantity = Math.max(1, parseInt(item.quantity, 10) || 1);
-      totalCents += product.price_cents * quantity;
+      if (product.stock_quantity < quantity) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: `Estoque insuficiente para "${product.name}" (disponível: ${product.stock_quantity}).` });
+      }
+      subtotalCents += product.price_cents * quantity;
       resolvedItems.push({ product, quantity });
     }
 
@@ -51,10 +60,34 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Nenhum item válido no carrinho.' });
     }
 
+    // Cupom
+    let discountCents = 0;
+    let appliedCouponCode = null;
+    if (couponCode) {
+      const { rows: couponRows } = await client.query(
+        'SELECT * FROM coupons WHERE code = $1 AND active = TRUE FOR UPDATE',
+        [couponCode.toUpperCase()]
+      );
+      if (couponRows.length > 0) {
+        const coupon = couponRows[0];
+        const notExpired = !coupon.expires_at || new Date(coupon.expires_at) >= new Date();
+        const underLimit = !coupon.max_uses || coupon.used_count < coupon.max_uses;
+        if (notExpired && underLimit) {
+          discountCents = coupon.discount_type === 'percent'
+            ? Math.round(subtotalCents * (coupon.discount_value / 100))
+            : Math.min(coupon.discount_value, subtotalCents);
+          appliedCouponCode = coupon.code;
+          await client.query('UPDATE coupons SET used_count = used_count + 1 WHERE id = $1', [coupon.id]);
+        }
+      }
+    }
+
+    const totalCents = Math.max(0, subtotalCents - discountCents);
+
     const { rows: orderRows } = await client.query(
-      `INSERT INTO orders (customer_name, customer_email, customer_address, payment_method, payment_detail, total_cents)
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, created_at`,
-      [customerName, customerEmail, customerAddress, paymentMethod, paymentDetail || null, totalCents]
+      `INSERT INTO orders (customer_id, customer_name, customer_email, customer_address, payment_method, payment_detail, coupon_code, discount_cents, total_cents)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, created_at`,
+      [customer.id, customer.name, customer.email, address, paymentMethod, paymentDetail || null, appliedCouponCode, discountCents, totalCents]
     );
     const order = orderRows[0];
 
@@ -64,11 +97,11 @@ router.post('/', async (req, res) => {
          VALUES ($1, $2, $3, $4, $5)`,
         [order.id, product.id, product.name, product.price_cents, quantity]
       );
+      await client.query('UPDATE products SET stock_quantity = stock_quantity - $1 WHERE id = $2', [quantity, product.id]);
     }
 
     await client.query('COMMIT');
 
-    // Gera dados fictícios de "pagamento" para exibir na tela de confirmação
     let paymentSimulation = {};
     if (paymentMethod === 'pix') {
       paymentSimulation = {
@@ -95,6 +128,8 @@ router.post('/', async (req, res) => {
     res.status(201).json({
       orderId: order.id,
       createdAt: order.created_at,
+      subtotalCents,
+      discountCents,
       totalCents,
       status: 'pago (simulado)',
       paymentSimulation,
@@ -108,10 +143,13 @@ router.post('/', async (req, res) => {
   }
 });
 
-// GET /api/orders/:id - consulta um pedido (usado na página de confirmação)
-router.get('/:id', async (req, res) => {
+// GET /api/orders/:id - consulta um pedido (dono do pedido)
+router.get('/:id', requireCustomer, async (req, res) => {
   try {
-    const { rows: orders } = await pool.query('SELECT * FROM orders WHERE id = $1', [req.params.id]);
+    const { rows: orders } = await pool.query(
+      'SELECT * FROM orders WHERE id = $1 AND customer_id = $2',
+      [req.params.id, req.session.customerId]
+    );
     if (orders.length === 0) return res.status(404).json({ error: 'Pedido não encontrado.' });
 
     const { rows: items } = await pool.query('SELECT * FROM order_items WHERE order_id = $1', [req.params.id]);
@@ -119,6 +157,19 @@ router.get('/:id', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Erro ao buscar pedido.' });
+  }
+});
+
+// ---------- Admin ----------
+
+// GET /api/orders/admin/all
+router.get('/admin/all', requireAdmin, async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT * FROM orders ORDER BY created_at DESC LIMIT 200');
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro ao buscar pedidos.' });
   }
 });
 

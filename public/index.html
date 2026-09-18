@@ -3,48 +3,253 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Doce Encanto - Confeitaria</title>
+<title>Doce Encanto — Confeitaria Artesanal</title>
+<meta name="description" content="Bolos, doces e tortas artesanais da Doce Encanto. Peça online com entrega.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
 
-<header>
-  <div>
-    <h1>🍰 Doce Encanto</h1>
-    <div class="tag">Bolos, doces e tortas artesanais</div>
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="#inicio" class="brand" data-nav>
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 48 48" width="34" height="34">
+          <circle cx="24" cy="24" r="24" fill="url(#g1)"/>
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="48" y2="48">
+              <stop offset="0" stop-color="#f28aa8"/>
+              <stop offset="1" stop-color="#c2477a"/>
+            </linearGradient>
+          </defs>
+          <path d="M24 12c-2 0-3.5 1.6-3.5 3.5 0 .9.3 1.7.9 2.3-3.9.7-6.9 3.6-7.3 7.2h20c-.4-3.6-3.4-6.5-7.3-7.2.6-.6.9-1.4.9-2.3C27.6 13.6 26 12 24 12z" fill="#fff"/>
+          <path d="M12.5 26h23c.8 0 1.5.7 1.5 1.5v2c0 .8-.7 1.5-1.5 1.5h-23c-.8 0-1.5-.7-1.5-1.5v-2c0-.8.7-1.5 1.5-1.5z" fill="#fff"/>
+          <path d="M13 32h22l-1.4 4.2c-.4 1-1.4 1.8-2.5 1.8H16.9c-1.1 0-2.1-.7-2.5-1.8L13 32z" fill="#fff"/>
+        </svg>
+      </span>
+      <span class="brand-text">
+        <span class="brand-name">Doce Encanto</span>
+        <span class="brand-tag">Confeitaria Artesanal</span>
+      </span>
+    </a>
+
+    <nav class="main-nav" id="main-nav">
+      <a href="#inicio" data-nav>Início</a>
+      <a href="#produtos" data-nav>Produtos</a>
+      <a href="#conta" data-nav>Conta</a>
+    </nav>
+
+    <div class="header-actions">
+      <button class="icon-btn" id="menu-toggle" aria-label="Abrir menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="cart-btn" id="cart-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 4h2l2.4 12.4a2 2 0 002 1.6h8.4a2 2 0 002-1.6L21 8H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="21" r="1.4" fill="currentColor"/><circle cx="18" cy="21" r="1.4" fill="currentColor"/></svg>
+        <span id="cart-count" class="cart-badge">0</span>
+      </button>
+    </div>
   </div>
-  <button id="cart-btn">🛒 Carrinho (<span id="cart-count">0</span>)</button>
 </header>
 
-<main>
-  <div class="demo-banner">
-    ⚠️ Site de demonstração — pagamentos são <strong>simulados</strong>, nenhuma cobrança real é feita.
+<!-- ===== HERO ===== -->
+<section id="inicio" class="hero">
+  <div class="hero-inner">
+    <div class="hero-copy">
+      <span class="eyebrow">✨ Feito à mão, todos os dias</span>
+      <h1>Doces momentos<br> começam com um <span class="highlight">Doce Encanto</span></h1>
+      <p>Bolos, tortas e doces artesanais feitos com ingredientes selecionados. Peça online e receba fresquinho, do jeito que só a nossa confeitaria faz.</p>
+      <div class="hero-cta">
+        <a href="#produtos" data-nav class="btn-primary">Ver produtos</a>
+        <a href="#conta" data-nav class="btn-outline">Criar minha conta</a>
+      </div>
+      <div class="trust-row">
+        <div class="trust-item">🎂 <span>Feito na hora</span></div>
+        <div class="trust-item">🚚 <span>Entrega rápida</span></div>
+        <div class="trust-item">💳 <span>Pix, cartão ou boleto</span></div>
+      </div>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <div class="hero-blob"></div>
+      <div class="hero-emoji hero-emoji-1">🍰</div>
+      <div class="hero-emoji hero-emoji-2">🧁</div>
+      <div class="hero-emoji hero-emoji-3">🍪</div>
+      <div class="hero-emoji hero-emoji-4">🍓</div>
+    </div>
   </div>
+</section>
 
-  <div id="catalog"></div>
-</main>
+<!-- ===== PRODUTOS ===== -->
+<section id="produtos" class="section">
+  <div class="section-inner">
+    <div class="section-heading">
+      <h2>Nosso cardápio</h2>
+      <p>Cada item é preparado artesanalmente com ingredientes selecionados.</p>
+    </div>
 
-<footer>Doce Encanto © 2026 — projeto de demonstração</footer>
+    <div class="demo-banner">
+      ⚠️ Site de demonstração — pagamentos são <strong>simulados</strong>, nenhuma cobrança real é feita.
+    </div>
 
-<!-- Carrinho -->
+    <div class="category-filters" id="category-filters"></div>
+    <div id="catalog" class="grid"></div>
+  </div>
+</section>
+
+<!-- ===== CONTA ===== -->
+<section id="conta" class="section section-alt">
+  <div class="section-inner narrow">
+    <div class="section-heading">
+      <h2>Sua conta</h2>
+      <p>Cadastre-se uma vez e finalize suas compras em poucos cliques.</p>
+    </div>
+
+    <!-- Visitante: login / cadastro -->
+    <div id="auth-area" class="account-card">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="login">Entrar</button>
+        <button class="tab-btn" data-tab="register">Criar conta</button>
+      </div>
+
+      <form id="login-form" class="tab-panel active">
+        <label>E-mail</label>
+        <input type="email" id="login-email" required placeholder="seuemail@exemplo.com">
+        <label>Senha</label>
+        <input type="password" id="login-password" required placeholder="Sua senha">
+        <div class="form-error" id="login-error"></div>
+        <button type="submit" class="btn-primary full">Entrar</button>
+      </form>
+
+      <form id="register-form" class="tab-panel">
+        <div class="form-grid">
+          <div><label>Nome completo</label><input type="text" id="reg-name" required></div>
+          <div><label>E-mail</label><input type="email" id="reg-email" required></div>
+          <div><label>Senha</label><input type="password" id="reg-password" required minlength="6"></div>
+          <div><label>Telefone</label><input type="tel" id="reg-phone" placeholder="(00) 00000-0000"></div>
+          <div><label>CPF</label><input type="text" id="reg-cpf" placeholder="000.000.000-00"></div>
+          <div><label>CEP</label><input type="text" id="reg-cep" placeholder="00000-000"></div>
+        </div>
+        <label>Endereço completo</label>
+        <input type="text" id="reg-address" placeholder="Rua, número, bairro, cidade - UF">
+        <div class="form-error" id="register-error"></div>
+        <button type="submit" class="btn-primary full">Criar conta</button>
+      </form>
+    </div>
+
+    <!-- Logado: perfil + pedidos -->
+    <div id="profile-area" class="account-card hidden">
+      <div class="profile-header">
+        <div>
+          <h3 id="profile-name">—</h3>
+          <p id="profile-email" class="muted">—</p>
+        </div>
+        <button class="btn-outline small" id="logout-btn">Sair</button>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-ptab="dados">Meus dados</button>
+        <button class="tab-btn" data-ptab="pedidos">Meus pedidos</button>
+      </div>
+
+      <form id="profile-form" class="tab-panel active">
+        <div class="form-grid">
+          <div><label>Nome completo</label><input type="text" id="profile-form-name"></div>
+          <div><label>Telefone</label><input type="tel" id="profile-form-phone"></div>
+          <div><label>CPF</label><input type="text" id="profile-form-cpf"></div>
+          <div><label>CEP</label><input type="text" id="profile-form-cep"></div>
+        </div>
+        <label>Endereço completo</label>
+        <input type="text" id="profile-form-address">
+        <div class="form-error" id="profile-error"></div>
+        <div class="form-success" id="profile-success"></div>
+        <button type="submit" class="btn-primary">Salvar alterações</button>
+      </form>
+
+      <div id="orders-panel" class="tab-panel">
+        <div id="orders-list"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div>
+      <div class="brand-name footer-brand">🍰 Doce Encanto</div>
+      <p class="muted">Confeitaria artesanal — projeto de demonstração.</p>
+    </div>
+    <a href="/admin.html" class="muted small-link">Área administrativa</a>
+  </div>
+</footer>
+
+<!-- ===== CARRINHO (drawer) ===== -->
 <div id="cart-overlay"></div>
-<div id="cart-drawer">
+<aside id="cart-drawer">
   <div class="cart-header">
     <strong>Seu carrinho</strong>
     <button class="close-btn" id="close-cart">&times;</button>
   </div>
   <div class="cart-items" id="cart-items"></div>
   <div class="cart-footer">
-    <div class="cart-total">
-      <span>Total</span>
-      <span id="cart-total">R$ 0,00</span>
+    <div class="cart-line"><span>Subtotal</span><span id="cart-subtotal">R$ 0,00</span></div>
+    <div class="cart-line discount hidden" id="cart-discount-line"><span>Cupom (<span id="cart-coupon-code"></span>)</span><span id="cart-discount">-R$ 0,00</span></div>
+    <div class="cart-line total"><span>Total</span><span id="cart-total">R$ 0,00</span></div>
+    <button class="btn-primary full" id="go-checkout">Finalizar pedido</button>
+    <button class="btn-outline full" id="continue-shopping">Continuar comprando</button>
+  </div>
+</aside>
+
+<!-- ===== CHECKOUT (modal) ===== -->
+<div id="checkout-overlay" class="modal-overlay"></div>
+<div id="checkout-modal" class="modal">
+  <div class="modal-header">
+    <strong>Finalizar pedido</strong>
+    <button class="close-btn" id="close-checkout">&times;</button>
+  </div>
+  <div class="modal-body">
+    <label>Endereço de entrega</label>
+    <textarea id="checkout-address" rows="2"></textarea>
+
+    <label>Cupom de desconto (opcional)</label>
+    <div class="coupon-row">
+      <input type="text" id="coupon-input" placeholder="Ex: BEMVINDO10">
+      <button type="button" class="btn-outline" id="apply-coupon-btn">Aplicar</button>
     </div>
-    <button class="btn-primary" id="go-checkout">Finalizar pedido</button>
-    <button class="btn-secondary" id="continue-shopping">Continuar comprando</button>
+    <div class="form-error" id="coupon-error"></div>
+
+    <h4 class="mini-title">Forma de pagamento</h4>
+    <div class="payment-options">
+      <div class="payment-option" data-method="pix">💠 Pix</div>
+      <div class="payment-option" data-method="boleto">🧾 Boleto</div>
+      <div class="payment-option" data-method="cartao">💳 Cartão</div>
+    </div>
+
+    <div id="card-selection" class="hidden">
+      <label class="mini-title">Escolha um cartão fictício de teste</label>
+      <div class="fake-cards" id="fake-cards">
+        <div class="fake-card" data-card="Visa fictício •••• 1234"><span>💳 Visa fictício</span><span>•••• 1234</span></div>
+        <div class="fake-card" data-card="Mastercard fictício •••• 5678"><span>💳 Mastercard fictício</span><span>•••• 5678</span></div>
+        <div class="fake-card" data-card="Elo fictício •••• 9012"><span>💳 Elo fictício</span><span>•••• 9012</span></div>
+      </div>
+    </div>
+
+    <div class="cart-line total" style="margin-top:16px;"><span>Total do pedido</span><span id="checkout-total">R$ 0,00</span></div>
+    <button class="btn-primary full" id="confirm-order">Confirmar pedido (simulado)</button>
+    <div class="form-error" id="checkout-error"></div>
   </div>
 </div>
 
-<script src="/js/cart.js"></script>
-<script src="/js/catalog.js"></script>
+<!-- ===== CONFIRMAÇÃO (modal) ===== -->
+<div id="confirmation-overlay" class="modal-overlay"></div>
+<div id="confirmation-modal" class="modal">
+  <div class="modal-body" id="confirmation-body" style="text-align:center;"></div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<script src="/js/app.js"></script>
 </body>
 </html>

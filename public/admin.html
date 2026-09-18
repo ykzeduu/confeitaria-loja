@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Administrativo — Doce Encanto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div id="admin-login-screen" class="login-screen">
+  <form id="admin-login-form" class="login-card">
+    <div class="login-brand">🍰 Doce Encanto <span>Admin</span></div>
+    <p class="muted">Acesse o painel administrativo</p>
+    <label>Usuário</label>
+    <input type="text" id="admin-username" required autofocus>
+    <label>Senha</label>
+    <input type="password" id="admin-password" required>
+    <div class="form-error" id="admin-login-error"></div>
+    <button type="submit" class="btn-primary full">Entrar</button>
+    <a href="/" class="back-link">← Voltar à loja</a>
+  </form>
+</div>
+
+<!-- ===== APP ===== -->
+<div id="admin-app" class="admin-app hidden">
+  <header class="admin-header">
+    <div class="admin-brand">🍰 Doce<span>Encanto</span> <small>ADMIN</small></div>
+    <nav class="admin-nav">
+      <button class="admin-nav-btn active" data-tab="dashboard">Dashboard</button>
+      <button class="admin-nav-btn" data-tab="produtos">Produtos</button>
+      <button class="admin-nav-btn" data-tab="clientes">Clientes</button>
+      <button class="admin-nav-btn" data-tab="cupons">Cupons</button>
+      <button class="admin-nav-btn" data-tab="financeiro">Financeiro</button>
+      <button class="admin-nav-btn" data-tab="config">Configurações</button>
+    </nav>
+    <div class="admin-header-actions">
+      <a href="/" class="btn-outline small">Ver loja</a>
+      <button class="btn-outline small" id="admin-logout">Sair</button>
+    </div>
+  </header>
+
+  <main class="admin-main">
+
+    <!-- DASHBOARD -->
+    <section class="admin-panel active" id="panel-dashboard">
+      <h1>Bem-vindo(a) 👋</h1>
+      <p class="muted">Central de comando da Doce Encanto.</p>
+
+      <div class="stat-grid">
+        <div class="stat-card blue"><span class="stat-label">Faturamento total</span><span class="stat-value" id="stat-revenue">—</span></div>
+        <div class="stat-card green"><span class="stat-label">Pedidos realizados</span><span class="stat-value" id="stat-orders">—</span></div>
+        <div class="stat-card orange"><span class="stat-label">Produtos com estoque baixo</span><span class="stat-value" id="stat-lowstock">—</span></div>
+        <div class="stat-card pink"><span class="stat-label">Clientes cadastrados</span><span class="stat-value" id="stat-customers">—</span></div>
+      </div>
+
+      <div class="two-col">
+        <div class="panel-box">
+          <h3>Pedidos recentes</h3>
+          <div id="recent-orders-list"></div>
+        </div>
+        <div class="panel-box">
+          <h3>Produtos mais vendidos</h3>
+          <div id="top-products-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRODUTOS -->
+    <section class="admin-panel" id="panel-produtos">
+      <div class="panel-head">
+        <h1>Produtos</h1>
+        <button class="btn-primary" id="new-product-btn">+ Novo produto</button>
+      </div>
+      <div class="table-wrap">
+        <table class="admin-table" id="products-table">
+          <thead><tr><th></th><th>Nome</th><th>Categoria</th><th>Preço</th><th>Estoque</th><th>Status</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- CLIENTES -->
+    <section class="admin-panel" id="panel-clientes">
+      <h1>Clientes</h1>
+      <div class="table-wrap">
+        <table class="admin-table" id="customers-table">
+          <thead><tr><th>Nome</th><th>E-mail</th><th>Telefone</th><th>CPF</th><th>Endereço</th><th>Pedidos</th><th>Total gasto</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- CUPONS -->
+    <section class="admin-panel" id="panel-cupons">
+      <div class="panel-head">
+        <h1>Cupons</h1>
+        <button class="btn-primary" id="new-coupon-btn">+ Novo cupom</button>
+      </div>
+      <div class="table-wrap">
+        <table class="admin-table" id="coupons-table">
+          <thead><tr><th>Código</th><th>Desconto</th><th>Usos</th><th>Validade</th><th>Status</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- FINANCEIRO -->
+    <section class="admin-panel" id="panel-financeiro">
+      <h1>Financeiro</h1>
+      <div class="stat-grid">
+        <div class="stat-card blue"><span class="stat-label">Faturamento total</span><span class="stat-value" id="fin-revenue">—</span></div>
+        <div class="stat-card green"><span class="stat-label">Total de pedidos</span><span class="stat-value" id="fin-orders">—</span></div>
+        <div class="stat-card orange"><span class="stat-label">Ticket médio</span><span class="stat-value" id="fin-avg">—</span></div>
+      </div>
+      <div class="panel-box">
+        <h3>Todos os pedidos</h3>
+        <div class="table-wrap">
+          <table class="admin-table" id="all-orders-table">
+            <thead><tr><th>#</th><th>Cliente</th><th>Total</th><th>Pagamento</th><th>Status</th><th>Data</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONFIGURAÇÕES -->
+    <section class="admin-panel" id="panel-config">
+      <h1>Configurações</h1>
+
+      <div class="panel-box" style="max-width:480px;">
+        <h3>Trocar senha do admin</h3>
+        <form id="change-password-form">
+          <label>Senha atual</label>
+          <input type="password" id="current-password" required>
+          <label>Nova senha</label>
+          <input type="password" id="new-password" required minlength="6">
+          <div class="form-error" id="password-error"></div>
+          <div class="form-success" id="password-success"></div>
+          <button type="submit" class="btn-primary" style="margin-top:14px;">Atualizar senha</button>
+        </form>
+      </div>
+
+      <div class="panel-box danger-zone">
+        <h3>⚠️ Zona de perigo — apenas para testes</h3>
+        <p class="muted">Isso apaga <strong>todos os pedidos, clientes e cupons</strong> do banco de dados. Os produtos e o login do admin são mantidos. Ação irreversível.</p>
+        <button class="btn-danger" id="reset-db-btn">Resetar banco de dados</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Modal: produto -->
+<div id="product-modal-overlay" class="modal-overlay"></div>
+<div id="product-modal" class="modal">
+  <div class="modal-header"><strong id="product-modal-title">Novo produto</strong><button class="close-btn" id="close-product-modal">&times;</button></div>
+  <div class="modal-body">
+    <form id="product-form">
+      <input type="hidden" id="product-id">
+      <label>Nome</label>
+      <input type="text" id="product-name" required>
+      <label>Descrição</label>
+      <textarea id="product-description" rows="2"></textarea>
+      <div class="form-grid">
+        <div><label>Preço (R$)</label><input type="number" step="0.01" min="0" id="product-price" required></div>
+        <div><label>Estoque</label><input type="number" min="0" id="product-stock" required></div>
+      </div>
+      <label>Categoria</label>
+      <input type="text" id="product-category" required placeholder="Ex: Bolos, Doces, Tortas...">
+      <label>Emoji (usado se não houver imagem)</label>
+      <input type="text" id="product-emoji" placeholder="🍰">
+
+      <label>Imagem do produto</label>
+      <div class="image-source-tabs">
+        <button type="button" class="tab-btn active" data-imgsrc="link">Por link</button>
+        <button type="button" class="tab-btn" data-imgsrc="upload">Enviar arquivo</button>
+      </div>
+      <input type="url" id="product-image-url" placeholder="https://exemplo.com/imagem.jpg">
+      <input type="file" id="product-image-file" accept="image/*" class="hidden">
+
+      <label class="checkbox-label"><input type="checkbox" id="product-active" checked> Produto ativo (visível na loja)</label>
+
+      <div class="form-error" id="product-error"></div>
+      <button type="submit" class="btn-primary full" style="margin-top:14px;">Salvar produto</button>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: cupom -->
+<div id="coupon-modal-overlay" class="modal-overlay"></div>
+<div id="coupon-modal" class="modal">
+  <div class="modal-header"><strong>Novo cupom</strong><button class="close-btn" id="close-coupon-modal">&times;</button></div>
+  <div class="modal-body">
+    <form id="coupon-form">
+      <label>Código</label>
+      <input type="text" id="coupon-code" required placeholder="Ex: BEMVINDO10">
+      <div class="form-grid">
+        <div>
+          <label>Tipo de desconto</label>
+          <select id="coupon-type"><option value="percent">Percentual (%)</option><option value="fixed">Valor fixo (R$)</option></select>
+        </div>
+        <div><label>Valor</label><input type="number" min="1" id="coupon-value" required></div>
+      </div>
+      <div class="form-grid">
+        <div><label>Limite de usos (opcional)</label><input type="number" min="1" id="coupon-maxuses"></div>
+        <div><label>Validade (opcional)</label><input type="date" id="coupon-expires"></div>
+      </div>
+      <div class="form-error" id="coupon-form-error"></div>
+      <button type="submit" class="btn-primary full" style="margin-top:14px;">Criar cupom</button>
+    </form>
+  </div>
+</div>
+
+<div id="admin-toast" class="toast"></div>
+
+<script src="/js/admin.js"></script>
+</body>
+</html>
